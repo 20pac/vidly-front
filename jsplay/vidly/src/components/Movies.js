@@ -1,10 +1,15 @@
 import React, { Component } from "react";
+import Like from "./common/Like";
 import { getMovies } from "../services/fakeMovieService";
 
 export default class Movies extends Component {
   state = {
-    movies: getMovies(),
+    movies: getMovies().map((movie) => {
+      let newMovie = { ...movie, liked: false };
+      return newMovie;
+    }),
   };
+
   render() {
     if (this.state.movies.length === 0) {
       return (
@@ -30,6 +35,7 @@ export default class Movies extends Component {
               <th scope="col">Stock</th>
               <th scope="col">Rate</th>
               <th scope="col"></th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
@@ -40,6 +46,12 @@ export default class Movies extends Component {
                   <td>{movie.genre.name}</td>
                   <td>{movie.numberInStock}</td>
                   <td>{movie.dailyRentalRate}</td>
+                  <td>
+                    <Like
+                      onClick={() => this.toggleLike(movie)}
+                      liked={movie.liked}
+                    />
+                  </td>
                   <td>
                     <button
                       className="btn btn-danger"
@@ -59,5 +71,12 @@ export default class Movies extends Component {
   deleteMovie = (id) => {
     let movies = [...this.state.movies.filter((movie) => movie._id !== id)];
     this.setState({ movies: movies });
+  };
+  toggleLike = (movie) => {
+    let movies = [...this.state.movies];
+    let index = movies.indexOf(movie);
+    movies[index] = { ...movies[index] };
+    movies[index].liked = !movies[index].liked;
+    this.setState({ movies });
   };
 }
