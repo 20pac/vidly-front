@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Like from "./common/Like";
 import Paginator from "./common/Paginator";
 import { getMovies } from "../services/fakeMovieService";
-import Paginate from "../utils/Paginate";
 
 export default class Movies extends Component {
   state = {
@@ -10,8 +9,6 @@ export default class Movies extends Component {
       let newMovie = { ...movie, liked: false };
       return newMovie;
     }),
-    pageSize: 4,
-    currentPage: 1,
   };
 
   render() {
@@ -24,11 +21,6 @@ export default class Movies extends Component {
         </>
       );
     }
-    const movies = Paginate(
-      this.state.movies,
-      this.state.currentPage,
-      this.state.pageSize
-    );
     return (
       <>
         <p className="mt-4">
@@ -36,12 +28,6 @@ export default class Movies extends Component {
           <span className="text-success">{this.state.movies.length}</span>{" "}
           movies in stock.
         </p>
-        <Paginator
-          numberOfItems={this.state.movies.length}
-          pageSize={this.state.pageSize}
-          onPageChange={this.handlePageChange}
-          currentPage={this.state.currentPage}
-        />
         <table className="table">
           <thead>
             <tr>
@@ -54,7 +40,7 @@ export default class Movies extends Component {
             </tr>
           </thead>
           <tbody>
-            {movies.map((movie) => {
+            {this.state.movies.map((movie) => {
               return (
                 <tr key={movie._id}>
                   <td>{movie.title}</td>
@@ -80,6 +66,7 @@ export default class Movies extends Component {
             })}
           </tbody>
         </table>
+        <Paginator />
       </>
     );
   }
@@ -93,8 +80,5 @@ export default class Movies extends Component {
     movies[index] = { ...movies[index] };
     movies[index].liked = !movies[index].liked;
     this.setState({ movies });
-  };
-  handlePageChange = (page) => {
-    this.setState({ currentPage: page });
   };
 }
