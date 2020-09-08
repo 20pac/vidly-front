@@ -17,3 +17,7 @@ code {
 /* .heart:focus {
   outline: none !important;
 } */
+
+.clickable {
+  cursor: pointer;
+}

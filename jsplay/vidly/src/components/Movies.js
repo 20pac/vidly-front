@@ -1,8 +1,11 @@
 import React, { Component } from "react";
-import Like from "./common/Like";
+import MoviesTable from "./MoviesTable";
 import Paginator from "./common/Paginator";
+import List from "./common/List";
 import { getMovies } from "../services/fakeMovieService";
+import { getGenres } from "../services/fakeGenreService";
 import Paginate from "../utils/Paginate";
+import _ from "lodash";
 
 export default class Movies extends Component {
   state = {
@@ -12,6 +15,9 @@ export default class Movies extends Component {
     }),
     pageSize: 4,
     currentPage: 1,
+    genres: getGenres(),
+    currentGenre: "All",
+    sortColumn: { path: "title", order: "asc" },
   };
 
   render() {
@@ -24,63 +30,48 @@ export default class Movies extends Component {
         </>
       );
     }
-    const movies = Paginate(
-      this.state.movies,
-      this.state.currentPage,
-      this.state.pageSize
+
+    let allMovies =
+      this.state.currentGenre === "All"
+        ? this.state.movies
+        : this.state.movies.filter(
+            (movie) => movie.genre.name === this.state.currentGenre
+          );
+    let sorted = _.orderBy(
+      allMovies,
+      [this.state.sortColumn.path],
+      [this.state.sortColumn.order]
     );
+    let movies = Paginate(sorted, this.state.currentPage, this.state.pageSize);
     return (
-      <>
-        <p className="mt-4">
-          Currently, there are{" "}
-          <span className="text-success">{this.state.movies.length}</span>{" "}
-          movies in stock.
-        </p>
-        <Paginator
-          numberOfItems={this.state.movies.length}
-          pageSize={this.state.pageSize}
-          onPageChange={this.handlePageChange}
-          currentPage={this.state.currentPage}
-        />
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Title</th>
-              <th scope="col">Genre</th>
-              <th scope="col">Stock</th>
-              <th scope="col">Rate</th>
-              <th scope="col"></th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {movies.map((movie) => {
-              return (
-                <tr key={movie._id}>
-                  <td>{movie.title}</td>
-                  <td>{movie.genre.name}</td>
-                  <td>{movie.numberInStock}</td>
-                  <td>{movie.dailyRentalRate}</td>
-                  <td>
-                    <Like
-                      onClick={() => this.toggleLike(movie)}
-                      liked={movie.liked}
-                    />
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => this.deleteMovie(movie._id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </>
+      <div className="row mt-4">
+        <div className="col-md-3">
+          <List
+            itemList={this.state.genres}
+            handleGenreChange={this.handleGenreChange}
+            currentGenre={this.state.currentGenre}
+          />
+        </div>
+        <div className="col-md-9">
+          <p>
+            Showing <span className="text-success">{allMovies.length}</span>{" "}
+            movies in database.
+          </p>
+          <Paginator
+            numberOfItems={allMovies.length}
+            pageSize={this.state.pageSize}
+            onPageChange={this.handlePageChange}
+            currentPage={this.state.currentPage}
+          />
+          <MoviesTable
+            movies={movies}
+            toggleLike={this.toggleLike}
+            deleteMovie={this.deleteMovie}
+            onSort={this.onSort}
+            sortColumn={this.state.sortColumn}
+          />
+        </div>
+      </div>
     );
   }
   deleteMovie = (id) => {
@@ -96,5 +87,11 @@ export default class Movies extends Component {
   };
   handlePageChange = (page) => {
     this.setState({ currentPage: page });
+  };
+  handleGenreChange = (item) => {
+    this.setState({ currentGenre: item.name, currentPage: 1 });
+  };
+  onSort = (sortColumn) => {
+    this.setState({ sortColumn });
   };
 }
