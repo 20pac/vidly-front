@@ -14,8 +14,10 @@
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.20",
     "prop-types": "^15.7.2",
+    "query-string": "^6.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3"
   },
   "scripts": {
